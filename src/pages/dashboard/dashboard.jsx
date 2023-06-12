@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import "./dashboard.css";
 import { MDBRow, MDBCol } from 'mdb-react-ui-kit';
 
+import axios from "axios"
 import Name from '../../components/filter/name/name';
 import Region from '../../components/filter/region/region';
 import Capital from '../../components/filter/capital/capital';
@@ -10,20 +11,45 @@ import Capital from '../../components/filter/capital/capital';
 import Blank from '../../components/filter/blank/blank';
 import Filter from '../../components/filter/filter/filter';
 
-export default function Dashboard() {
+export default class Dashboard extends React.Component {
+
+    constructor(props){
+      super(props);
+      this.state = {
+        renderScreen: 0,
+        selectedCountry: {},
+        countriesMatch: []
+      }
+    };
 
 
-  const [renderScreen, setRenderScreen] = useState(0);
-    const [selectedCountry, setSelectedCountry] = useState({});
-    const [countriesMatch, setCountriesMatch] = useState([
-      {cname: 'Mexico', region: 'Americas', population: '123123', capital: 'Mexico City', flag: "https://flagcdn.com/w320/bl.png"},
-      {cname: 'Nicaragua', region: 'Americas', population: '123123', capital: 'Managua', flag: "https://flagcdn.com/w320/bl.png"},
-      {cname: 'Costa Rica', region: 'Americas', population: '123123', capital: 'San Jose?', flag: "https://flagcdn.com/w320/bl.png"},
-      {cname: 'Honduras', region: 'Americas', population: '123123', capital: 'uh...', flag: "https://flagcdn.com/w320/bl.png"},
-    ]);
+    async componentDidMount() {
+
+      try {
+        const response = await fetch("http://localhost:8080/api/country")
+        const json = await response.json();
+        console.log('request is done')
+        console.log(json)  
+
+        this.setState({
+          countriesMatch: json
+        })
+      } catch (error) {
+        console.log("error fetching: ", error)
+      }
+      
+    }
+
+    setCountriesMatch = (data) => {
+      this.setState({countriesMatch: data})
+    }
+    
+    setRenderScreen = (data) => {
+      this.setState({renderScreen: data})
+    }
 
 
-    function CurrentScreen(screen) {
+    CurrentScreen = (screen) => {
         switch (screen) {
             //Blank
             case 0:
@@ -31,15 +57,15 @@ export default function Dashboard() {
             
             // Name
             case 1:
-            return <Name countries={countriesMatch} setCountries={setCountriesMatch}/>
+            return <Name countries={this.state.countriesMatch} setCountries={this.setCountriesMatch}/>
 
             // Region
             case 2:
-            return <Capital countries={countriesMatch} setCountries={setCountriesMatch}/>
+            return <Capital countries={this.state.countriesMatch} setCountries={this.setCountriesMatch}/>
 
             // Capital
             case 3:
-            return <Region countries={countriesMatch} setCountries={setCountriesMatch}/>
+            return <Region countries={this.state.countriesMatch} setCountries={this.setCountriesMatch}/>
 
             // Country Selection
             case 4:
@@ -49,22 +75,25 @@ export default function Dashboard() {
 
   
 
-  return (
+  render() {
+    return (
     <div className="Dashboard">
     <MDBRow>
       
         
       <MDBCol sm='2' md='2'>
-        <Filter onFilterClick={setRenderScreen}></Filter>
+        <Filter onFilterClick={this.setRenderScreen}></Filter>
       </MDBCol>
 
 
       <MDBCol sm='8' md='8'>
-        {CurrentScreen(renderScreen)}
+        {this.CurrentScreen(this.state.renderScreen)}
       </MDBCol>
 
     </MDBRow>
     </div>
     
   );
+}
+
 }
