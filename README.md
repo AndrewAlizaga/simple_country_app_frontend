@@ -5,4 +5,4 @@
 
 In order to work you will need to also run the backend microservice parallel
 [http://localhost:3000] - > frontend
-[http://localhost:3000] - > backend
+[http://localhost:8080] - > backend
